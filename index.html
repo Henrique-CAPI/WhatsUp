@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Up? — What's Above You Right Now</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">What's Up?</h1>
+            <p class="app-subtitle">What's above you right now</p>
+        </header>
+
+        <div id="main-menu" class="main-menu">
+            <p class="menu-prompt">How would you like to set your location?</p>
+            <div class="menu-options">
+                <button id="use-current-location-btn" class="menu-btn primary">
+                    <span class="menu-btn-icon">📍</span>
+                    <span class="menu-btn-text">
+                        <strong>Use Current Location</strong>
+                        <small>Requires location permission</small>
+                    </span>
+                </button>
+                <button id="enter-coordinates-btn" class="menu-btn secondary">
+                    <span class="menu-btn-icon">🌍</span>
+                    <span class="menu-btn-text">
+                        <strong>Enter Coordinates</strong>
+                        <small>Manually input latitude & longitude</small>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div id="coordinate-form" class="coordinate-form hidden">
+            <h2 class="form-title">Enter Coordinates</h2>
+            <p class="form-subtitle">Enter latitude and longitude to see what's above that location</p>
+            <form id="coords-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" id="latitude" name="latitude" 
+                               placeholder="-90 to 90" 
+                               min="-90" max="90" step="any" required>
+                        <small>Positive = North, Negative = South</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" id="longitude" name="longitude" 
+                               placeholder="-180 to 180" 
+                               min="-180" max="180" step="any" required>
+                        <small>Positive = East, Negative = West</small>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="back-to-menu-btn" class="btn-back">← Back</button>
+                    <button type="submit" class="btn-submit">View Sky</button>
+                </div>
+            </form>
+            <div id="last-location" class="last-location hidden">
+                <p>Last used location:</p>
+                <button type="button" id="last-location-btn" class="last-location-btn">
+                    <span class="last-location-icon">🕐</span>
+                    <span id="last-location-coords"></span>
+                </button>
+            </div>
+            <div class="preset-locations">
+                <p>Or try a preset location:</p>
+                <div class="preset-buttons">
+                    <button type="button" class="preset-btn" data-lat="40.7128" data-lon="-74.0060">New York</button>
+                    <button type="button" class="preset-btn" data-lat="51.5074" data-lon="-0.1278">London</button>
+                    <button type="button" class="preset-btn" data-lat="35.6762" data-lon="139.6503">Tokyo</button>
+                    <button type="button" class="preset-btn" data-lat="-33.8688" data-lon="151.2093">Sydney</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="location-info" class="location-info hidden">
+            <span class="location-icon">📍</span>
+            <span id="coordinates"></span>
+            <button id="change-location-btn" class="change-location-btn">Change</button>
+        </div>
+
+        <div id="loading-state" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p id="loading-message">Detecting your location...</p>
+        </div>
+
+        <div id="error-state" class="error-state hidden">
+            <span class="error-icon">⚠️</span>
+            <p id="error-message"></p>
+            <div class="error-actions">
+                <button id="error-back-btn" class="btn-back">← Back to Menu</button>
+                <button id="retry-btn" class="retry-btn">Try Again</button>
+            </div>
+        </div>
+
+        <main id="main-content" class="main-content hidden">
+            <div class="section-header">
+                <h2>Visible Objects</h2>
+                <span id="object-count" class="object-count"></span>
+            </div>
+            <p class="section-subtitle">Sorted by proximity to directly overhead</p>
+            
+            <div id="objects-list" class="objects-list"></div>
+
+            <div id="empty-state" class="empty-state hidden">
+                <span class="empty-icon">🌙</span>
+                <p>No celestial objects are currently visible above this location.</p>
+            </div>
+        </main>
+
+        <div id="detail-view" class="detail-view hidden">
+            <div id="detail-bg" class="detail-bg"></div>
+            <div class="detail-bg-overlay"></div>
+            
+            <button id="detail-close-btn" class="detail-close-btn">
+                <span>✕</span>
+            </button>
+            
+            <div class="detail-content">
+                <div id="detail-list" class="detail-list"></div>
+                
+                <div id="detail-info" class="detail-info">
+                    <div class="detail-info-header">
+                        <span id="detail-icon" class="detail-header-icon"></span>
+                        <div class="detail-header-text">
+                            <h2 id="detail-name"></h2>
+                            <span id="detail-type" class="detail-type"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="detail-basic-info" class="detail-basic-info"></div>
+                    
+                    <div class="detail-facts">
+                        <h3>About This Object</h3>
+                        <div id="detail-facts-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <p>Data updates in real-time based on your location</p>
+            <button id="refresh-btn" class="refresh-btn hidden">
+                <span class="refresh-icon">↻</span>
+                <span class="refresh-text">Refresh</span>
+            </button>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
